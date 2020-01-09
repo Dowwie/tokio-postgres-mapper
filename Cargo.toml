@@ -1,0 +1,19 @@
+[package]
+description = "Proc-macro library eliminating the manual overhead involved with mapping a tokio-postgres row to a Rust type (struct)"
+keywords = ["tokio", "postgres", "mapper"]
+authors = ["Darin Gordon <dkcdkg@gmail.com>", "Zeyla Hellyer <zeyla@hellyer.dev>"]
+license = "ISC"
+name = "tokio-pg-mapper"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+doctest = false
+
+[dependencies]
+tokio-postgres = "0.5.1"
+tokio-pg-mapper-derive = {optional = true,path="./pg_mapper_derive"}
+
+
+[features]
+derive = ["tokio-pg-mapper-derive"]

@@ -1,0 +1,15 @@
+[package]
+description = "Postgres struct mapper proc-macro."
+keywords = ["tokio", "postgres", "mapper"]
+license = "ISC"
+name = "tokio-pg-mapper-derive"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote = "1.0.2"
+syn = { version = "1.0.13", features = ["full"] }
+tokio-postgres = "0.5.1"

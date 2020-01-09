@@ -1,0 +1,11 @@
+[package]
+name = "postgres-mapper-derive-example"
+version = "0.1.0"
+authors = ["Lenard Pratt <l3np27@gmail.com>"]
+edition = "2018"
+publish = false
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies.tokio-postgres-mapper]
+path="../tokio-postgres-mapper"
+features=["derive"]
