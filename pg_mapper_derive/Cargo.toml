@@ -1,10 +1,14 @@
 [package]
-description = "Postgres struct mapper proc-macro."
-keywords = ["tokio", "postgres", "mapper"]
-license = "ISC"
 name = "tokio-pg-mapper-derive"
 version = "0.1.0"
+description = "Proc-macro library used to map a tokio-postgres row to a Rust type (struct)"
+authors = ["Darin Gordon <dkcdkg@gmail.com>", "Zeyla Hellyer <zeyla@hellyer.dev>"]
+repository = "https://www.github.com/Dowwie/tokio-postgres-mapper"
+homepage = "https://www.github.com/Dowwie/tokio-postgres-mapper"
+license = "ISC"
+keywords = ["tokio", "postgres", "mapper"]
 edition = "2018"
+
 
 [lib]
 proc-macro = true
