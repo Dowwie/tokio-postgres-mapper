@@ -90,8 +90,8 @@ must also be enabled in `tokio-pg-mapper`.
 Add the following to your `Cargo.toml`:
 
 ```toml
-tokio-pg-mapper = { git = "https://github.com/githubaccount624/tokio-pg-mapper" }
-tokio-pg-mapper-derive = { git = "https://github.com/githubaccount624/tokio-pg-mapper" }
+tokio-pg-mapper = { git = "https://github.com/Dowwie/tokio-pg-mapper" }
+tokio-pg-mapper-derive = { git = "https://github.com/Dowwie/tokio-pg-mapper" }
 ```
 
 This will derive implementations for converting from owned and referenced
