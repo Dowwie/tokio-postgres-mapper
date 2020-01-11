@@ -1,6 +1,6 @@
-//! # tokio-postgres-mapper
+//! # tokio-pg-mapper
 //!
-//! `tokio-postgres-mapper` is a proc-macro designed to make mapping from postgresql
+//! `tokio-pg-mapper` is a proc-macro designed to make mapping from postgresql
 //! tables to structs simple.
 //!
 //! ### Why?
@@ -30,51 +30,27 @@
 //! }
 //!
 //! // code to execute a query here and get back a row
-//! let user = User::from(row); // this can panic
+//! let user = User::from_row(row); // returns Result<User, tokio_pg_mapper::Error>
 //! ```
 //!
-//! This becomes worse when manually implementating using the non-panicking
-//! `get_opt` method variant.
-//!
-//! Using this crate, the boilerplate is removed, and panicking and non-panicking
-//! implementations are derived:
-//!
-//! ```rust
-//! #[macro_use] extern crate tokio_pg_mapper_derive;
-//! use tokio_pg_mapper;
-//!
-//! use tokio_pg_mapper::FromPostgresRow;
-//!
-//! #[derive(PostgresMapper)]
-//! pub struct User {
-//!     pub id: i64,
-//!     pub name: String,
-//!     pub email: Option<String>,
-//! }
-//!
-//! // code to execute a query here and get back a row
-//!
-//! // `tokio_pg_mapper::FromPostgresRow`'s methods do not panic and return a Result
-//! let user = User::from(row)?;
-//! ```
 //!
 //! ### The two crates
 //!
-//! This repository contains two crates: `postgres-mapper` which contains an `Error`
-//! enum and traits for converting from a `postgres` or `tokio-postgres` `Row`
-//! without panicking, and `postgres-mapper-derive` which contains the proc-macro.
+//! This repository contains two crates: `tokio-pg-mapper` which contains an `Error`
+//! enum and traits for converting from `tokio-postgres` `Row`
+//! without panicking, and `pg-mapper-derive` which contains the proc-macro.
 //!
-//! `postgres-mapper-derive` has 3 features that can be enabled (where T is the
-//! struct being derived with the provided `PostgresMapper` proc-macro):
+//! `pg-mapper-derive` has 3 features that can be enabled (where T is the
+//! struct being derived with the provided `TokioPostgresMapper` proc-macro):
 //!
-//! `impl From<::tokio_postgres::row::Row> for T` and
-//! `impl From<&::tokio_postgres::row::Row> for T` implementations
-//! - `postgres-mapper` which, for each of the above features, implements
-//! `postgres-mapper`'s `FromPostgresRow` and/or `FromTokioPostgresRow` traits
+//! `impl FromTokioPostgresRow<::tokio_postgres::row::Row> for T` and
+//! `impl FromTokioPostgresRow<&::tokio_postgres::row::Row> for T` implementations
+//! - `pg-mapper` which, for each of the above features, implements
+//! `pg-mapper`'s `FromTokioPostgresRow` trait
 //!
 //!
 //! This will derive implementations for converting from owned and referenced
-//! `tokio-postgres::row::Row`s, as well as implementing `postgres-mapper`'s
+//! `tokio-postgres::row::Row`s, as well as implementing `pg-mapper`'s
 //! `FromTokioPostgresRow` trait for non-panicking conversions.
 #[cfg(feature = "derive")]
 #[allow(unused_imports)]
@@ -93,11 +69,11 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 /// Trait containing various methods for converting from a `tokio-postgres` Row
 /// to a mapped type.
 ///
-/// When using the `pg_mapper_derive` crate's `PostgresMapper` proc-macro,
+/// When using the `pg_mapper_derive` crate's `TokioPostgresMapper` proc-macro,
 /// this will automatically be implemented on types.
 ///
-/// The [`from_tokio_postgres_row`] method exists for consuming a `Row` - useful
-/// for iterator mapping - while [`from_postgres_row_ref`] exists for borrowing
+/// The [`from_row`] method exists for consuming a `Row` - useful
+/// for iterator mapping - while [`from_row_ref`] exists for borrowing
 /// a `Row`.
 pub trait FromTokioPostgresRow: Sized {
     /// Converts from a `tokio-postgres` `Row` into a mapped type, consuming the
@@ -113,7 +89,7 @@ pub trait FromTokioPostgresRow: Sized {
     ///
     /// [`Error::ColumnNotFound`]: enum.Error.html#variant.ColumnNotFound
     /// [`Error::Conversion`]: enum.Error.html#variant.Conversion
-    fn from_tokio_postgres_row(row: TokioRow) -> Result<Self, Error>;
+    fn from_row(row: TokioRow) -> Result<Self, Error>;
 
     /// Converts from a `tokio-postgres` `Row` into a mapped type, borrowing the
     /// given `Row`.
@@ -128,7 +104,7 @@ pub trait FromTokioPostgresRow: Sized {
     ///
     /// [`Error::ColumnNotFound`]: enum.Error.html#variant.ColumnNotFound
     /// [`Error::Conversion`]: enum.Error.html#variant.Conversion
-    fn from_tokio_postgres_row_ref(row: &TokioRow) -> Result<Self, Error>;
+    fn from_row_ref(row: &TokioRow) -> Result<Self, Error>;
 
     /// Get the name of the annotated sql table name.
     ///
@@ -146,9 +122,27 @@ pub trait FromTokioPostgresRow: Sized {
     ///     }
     /// ```
     fn sql_table() -> String;
+    
+    
+    /// Get a list of the field names, excluding table name prefix. 
+    ///
+    /// Example:
+    ///
+    /// The following will return the String " id, email ".
+    /// Note the extra spaces on either side to avoid incorrect formatting.
+    ///
+    /// ```
+    ///     #[derive(PostgresMapper)]
+    ///     #[pg_mapper(table = "user")]
+    ///     pub struct User {
+    ///         pub id: i64,
+    ///         pub email: Option<String>,
+    ///     }
+    /// ```
+    ///
+    fn sql_fields() -> String;
 
-    /// Get a list of the field names which can be used to construct
-    /// a SQL query.
+    /// Get a list of the field names, including table name prefix.
     ///
     /// We also expect an attribute tag #[pg_mapper(table = "foo")]
     /// so that a scoped list of fields can be generated.
@@ -167,7 +161,7 @@ pub trait FromTokioPostgresRow: Sized {
     ///     }
     /// ```
     ///
-    fn sql_fields() -> String;
+    fn sql_table_fields() -> String;
 }
 
 /// General error type returned throughout the library.
