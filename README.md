@@ -42,10 +42,11 @@ Using this crate, the boilerplate is removed, and panicking and non-panicking
 implementations are derived:
 
 ```rust
-#[macro_use] extern crate tokio_pg_mapper_derive;
+extern crate tokio_pg_mapper_derive;
 extern crate tokio_pg_mapper;
 
-use tokio_pg_mapper::FromPostgresRow;
+use tokio_pg_mapper::FromTokioPostgresRow;
+use tokio_pg_mapper_derive::PostgresMapper;
 
 #[derive(PostgresMapper)]
 pub struct User {
@@ -58,7 +59,8 @@ pub struct User {
 let stmt = "SELECT * FROM user WHERE username = $1 AND password = $2";
 
 let result = client.query_one(stmt, &[&5, "asdf"]).await?;
-let user = User::from(result);
+let user = User::from_row(result).unwrap(); // or from_row_ref(&result)
+
 
 ```
 
@@ -66,37 +68,14 @@ let user = User::from(result);
 ### The two crates
 
 This repository contains two crates: `postgres-mapper` which contains an `Error`
-enum and traits for converting from a `postgres` or `tokio-pg` `Row`
+enum and traits for converting from a `tokio-postgres` `Row`
 without panicking, and `postgres-mapper-derive` which contains the proc-macro.
 
-`postgres-mapper-derive` has 3 features that can be enabled (where T is the
-struct being derived with the provided `PostgresMapper` proc-macro):
-
-- `postgres-support`, which derives
-`impl<'a> From<::postgres::rows::Row<'a>> for T` and
-`impl<'a> From<&'a ::postgres::Row<'a>> for T` implementations
-- `tokio-pg-support`, which derives
-`impl From<::tokio_postgres::rows::Row> for T` and
-`impl From<&::tokio_postgres::rows::Row> for T` implementations
-- `tokio-pg-mapper` which, for each of the above features, implements
-`tokio-pg-mapper`'s `FromPostgresRow` and/or `FromTokioPostgresRow` traits
-
-`tokio-pg-mapper` has two features, `postgres-support` and
-`tokio-pg-support`. When one is enabled in `tokio-pg-mapper-derive`, it
-must also be enabled in `tokio-pg-mapper`.
 
 ### Installation
 
-Add the following to your `Cargo.toml`:
+Install `tokio-pg-mapper-derive` and `tokio-pg-mapper` from crates.io
 
-```toml
-tokio-pg-mapper = { git = "https://github.com/Dowwie/tokio-pg-mapper" }
-tokio-pg-mapper-derive = { git = "https://github.com/Dowwie/tokio-pg-mapper" }
-```
-
-This will derive implementations for converting from owned and referenced
-`tokio-pg::rows::Row`s, as well as implementing `tokio-pg-mapper`'s
-`FromTokioPostgresRow` trait for non-panicking conversions.
 
 ### License
 
