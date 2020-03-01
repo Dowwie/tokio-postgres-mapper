@@ -85,13 +85,13 @@ fn impl_tokio_pg_mapper(
 
     let tokens = quote! {
         impl #impl_generics tokio_pg_mapper::FromTokioPostgresRow for #name #ty_generics #where_clause {
-            fn from_row(row: tokio_postgres::row::Row) -> Result<Self, tokio_pg_mapper::Error> {
+            fn from_row(row: tokio_postgres::row::Row) -> ::std::result::Result<Self, tokio_pg_mapper::Error> {
                 Ok(Self {
                     #(#fields),*
                 })
             }
 
-            fn from_row_ref(row: &tokio_postgres::row::Row) -> Result<Self, tokio_pg_mapper::Error> {
+            fn from_row_ref(row: &tokio_postgres::row::Row) -> ::std::result::Result<Self, tokio_pg_mapper::Error> {
                 Ok(Self {
                     #(#ref_fields),*
                 })
@@ -131,7 +131,7 @@ fn get_mapper_meta_items(attr: &syn::Attribute) -> Option<Vec<syn::NestedMeta>> 
 fn get_lit_str<'a>(
     attr_name: Option<&Ident>,
     lit: &'a syn::Lit,
-) -> Result<&'a syn::LitStr, ()> {
+) -> ::std::result::Result<&'a syn::LitStr, ()> {
     if let syn::Lit::Str(ref lit) = *lit {
         Ok(lit)
     } else {
