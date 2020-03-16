@@ -122,9 +122,8 @@ pub trait FromTokioPostgresRow: Sized {
     ///     }
     /// ```
     fn sql_table() -> String;
-    
-    
-    /// Get a list of the field names, excluding table name prefix. 
+
+    /// Get a list of the field names, excluding table name prefix.
     ///
     /// Example:
     ///
@@ -187,15 +186,18 @@ impl From<Box<dyn StdError + Send + Sync>> for Error {
 
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        f.write_str(self.description())
+        match self {
+            Error::ColumnNotFound => write!(f, "Column in row not found"),
+            Error::Conversion(inner) => write!(f, "{}", inner),
+        }
     }
 }
 
 impl StdError for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::ColumnNotFound => "Column in row not found",
-            Error::Conversion(ref inner) => inner.description(),
+    fn source(&self) -> Option<&(dyn StdError + 'static)> {
+        match self {
+            Error::ColumnNotFound => None,
+            Error::Conversion(inner) => Some(inner.as_ref()),
         }
     }
 }
