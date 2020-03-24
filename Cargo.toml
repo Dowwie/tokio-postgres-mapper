@@ -19,3 +19,18 @@ tokio-pg-mapper-derive = { version = "0.1.4", optional = true}
 
 [features]
 derive = ["tokio-pg-mapper-derive"]
+
+[workspace]
+members=[
+    ".",
+    "pg_mapper_derive",
+]
+
+[profile.release]
+lto = true
+opt-level = 3
+codegen-units = 1
+
+[patch.crates-io]
+tokio-pg-mapper = { path = "." }
+tokio-pg-mapper-derive = { path = "pg_mapper_derive" }
