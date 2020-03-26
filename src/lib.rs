@@ -171,11 +171,17 @@ pub enum Error {
     ColumnNotFound,
     /// An error from the `tokio-postgres` crate while converting a type.
     Conversion(Box<dyn StdError + Send + Sync>),
+    /// Used in a scenario where tokios_postgres::Error::into_source returns None
+    UnknownTokioPG
 }
 
 impl From<tokio_postgres::Error> for Error {
     fn from(err: tokio_postgres::Error) -> Self {
-        err.into_source().unwrap().into()
+        if let Some(source) = err.into_source() {
+            source.into()
+        } else {
+            Error::UnknownTokioPG
+        }
     }
 }
 
@@ -196,6 +202,7 @@ impl StdError for Error {
         match *self {
             Error::ColumnNotFound => "Column in row not found",
             Error::Conversion(ref inner) => inner.description(),
+            Error::UnknownTokioPG => "Unknown/unsourced tokio-postgres error"
         }
     }
 }
