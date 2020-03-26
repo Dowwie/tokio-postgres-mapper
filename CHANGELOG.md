@@ -1,3 +1,6 @@
+# 0.1.7
+- refactored std::Error impl, replacing deprecated 'fn description' with 'fn source'
+
 # 0.1.6
 - remove unwrap from error handling, replaced with a general unknown variant
 

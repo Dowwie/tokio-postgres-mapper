@@ -193,16 +193,15 @@ impl From<Box<dyn StdError + Send + Sync>> for Error {
 
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        f.write_str(self.description())
+        f.write_str(&self.to_string())
     }
 }
 
 impl StdError for Error {
-    fn description(&self) -> &str {
+    fn source(&self) -> Option<&(dyn StdError + 'static)> {
         match *self {
-            Error::ColumnNotFound => "Column in row not found",
-            Error::Conversion(ref inner) => inner.description(),
-            Error::UnknownTokioPG => "Unknown/unsourced tokio-postgres error"
+            Error::Conversion(ref inner) => inner.source(),
+            _ => None
         }
     }
 }
