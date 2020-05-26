@@ -1,5 +1,4 @@
-#[macro_use]
-extern crate tokio_pg_mapper_derive;
+use tokio_pg_mapper::PostgresMapper;
 
 #[derive(PostgresMapper)]
 #[pg_mapper(table = "user")]
