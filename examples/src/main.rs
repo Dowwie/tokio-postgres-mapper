@@ -1,7 +1,7 @@
-#[macro_use]
-extern crate tokio_pg_mapper_derive;
+use tokio_pg_mapper::PostgresMapper;
 
 #[derive(PostgresMapper)]
+#[pg_mapper(table = "user")]
 pub struct User {
     pub id: i64,
     pub name: String,

@@ -172,15 +172,16 @@ pub enum Error {
     /// An error from the `tokio-postgres` crate while converting a type.
     Conversion(Box<dyn StdError + Send + Sync>),
     /// Used in a scenario where tokios_postgres::Error::into_source returns None
-    UnknownTokioPG
+    UnknownTokioPG(String)
 }
 
 impl From<tokio_postgres::Error> for Error {
     fn from(err: tokio_postgres::Error) -> Self {
+        let reason = err.to_string();
         if let Some(source) = err.into_source() {
             source.into()
         } else {
-            Error::UnknownTokioPG
+            Error::UnknownTokioPG(reason)
         }
     }
 }
@@ -193,7 +194,11 @@ impl From<Box<dyn StdError + Send + Sync>> for Error {
 
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        f.write_str(&self.to_string())
+        match self {
+            Error::ColumnNotFound => f.write_str("Tokio-postgres-mapper: Column not found"),
+            Error::UnknownTokioPG(reason) => f.write_str(reason),
+            Error::Conversion(err) => f.write_str(err.to_string().as_str()),
+        }
     }
 }
 
