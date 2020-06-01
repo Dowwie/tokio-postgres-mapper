@@ -14,7 +14,7 @@ doctest = false
 
 [dependencies]
 tokio-postgres = "0.5.4"
-tokio-pg-mapper-derive = { version = "0.1.5", optional = true }
+tokio-pg-mapper-derive = { path = "pg_mapper_derive", optional = true }
 
 [[example]]
 name = "src"
