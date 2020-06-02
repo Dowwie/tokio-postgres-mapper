@@ -119,22 +119,8 @@ pub trait FromTokioPostgresRow: Sized {
     ///
     /// [`Error::ColumnNotFound`]: enum.Error.html#variant.ColumnNotFound
     /// [`Error::Conversion`]: enum.Error.html#variant.Conversion
-    fn from_rows(rows: Vec<TokioRow>) -> Result<Vec<Self>, Error>;
+    fn from_rows(rows: Vec<&TokioRow>) -> Result<Vec<Self>, Error>;
 
-    /// Converts from a `tokio-postgres` `Vec<Row>` into a mapped type, borrowing the
-    /// given `Row`s .
-    ///
-    /// # Errors
-    ///
-    /// Returns [`Error::ColumnNotFound`] if the column in a mapping was not
-    /// found.
-    ///
-    /// Returns [`Error::Conversion`] if there was an error converting the row
-    /// column into the requested type.
-    ///
-    /// [`Error::ColumnNotFound`]: enum.Error.html#variant.ColumnNotFound
-    /// [`Error::Conversion`]: enum.Error.html#variant.Conversion
-    fn from_rows_ref(rows: Vec<&TokioRow>) -> Result<Vec<Self>, Error>; 
 
     /// Get the name of the annotated sql table name.
     ///
