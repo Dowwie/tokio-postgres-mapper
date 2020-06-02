@@ -6,7 +6,7 @@ extern crate syn;
 use proc_macro::TokenStream;
 
 use syn::{
-    Data, DataStruct, DeriveInput, GenericParam, Ident, ImplGenerics, Item, Lifetime, LifetimeDef,
+    Data, DataStruct, DeriveInput,  Ident, ImplGenerics, Item, 
     Meta::{List, NameValue}, NestedMeta::Meta, TypeGenerics, WhereClause,
 };
 
