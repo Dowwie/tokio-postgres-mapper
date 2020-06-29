@@ -119,7 +119,7 @@ pub trait FromTokioPostgresRow: Sized {
     ///
     /// [`Error::ColumnNotFound`]: enum.Error.html#variant.ColumnNotFound
     /// [`Error::Conversion`]: enum.Error.html#variant.Conversion
-    fn from_rows(rows: Vec<&TokioRow>) -> Result<Vec<Self>, Error>;
+    fn from_rows(rows: Vec<TokioRow>) -> Result<Vec<Self>, Error>;
 
 
     /// Get the name of the annotated sql table name.
