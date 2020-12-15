@@ -6,10 +6,11 @@ extern crate syn;
 use proc_macro::TokenStream;
 
 use syn::{
-    Data, DataStruct, DeriveInput, GenericParam, Ident, ImplGenerics, Item, Lifetime, LifetimeDef,
-    Meta::{List, NameValue}, NestedMeta::Meta, TypeGenerics, WhereClause,
+    Data, DataStruct, DeriveInput, Ident, ImplGenerics, Item,
+    Meta::{List, NameValue},
+    NestedMeta::Meta,
+    TypeGenerics, WhereClause,
 };
-
 
 #[proc_macro_derive(PostgresMapper, attributes(pg_mapper))]
 pub fn postgres_mapper(input: TokenStream) -> TokenStream {
@@ -29,8 +30,14 @@ fn impl_derive(ast: &mut DeriveInput) -> TokenStream {
         _ => panic!("Enums or Unions can not be mapped"),
     };
 
-    let tokio_pg_mapper =
-        impl_tokio_pg_mapper(s, name, &table_name, impl_generics, ty_generics, where_clause);
+    let tokio_pg_mapper = impl_tokio_pg_mapper(
+        s,
+        name,
+        &table_name,
+        impl_generics,
+        ty_generics,
+        where_clause,
+    );
 
     let tokens = quote! {
         #tokio_pg_mapper
@@ -38,7 +45,6 @@ fn impl_derive(ast: &mut DeriveInput) -> TokenStream {
 
     tokens.into()
 }
-
 
 fn impl_tokio_pg_mapper(
     s: &DataStruct,
@@ -57,7 +63,7 @@ fn impl_tokio_pg_mapper(
             #ident:row.try_get::<&str,#ty>(#row_expr)?
         }
     });
-    
+
     let ref_fields = s.fields.iter().map(|field| {
         let ident = field.ident.as_ref().unwrap();
         let ty = &field.ty;
@@ -68,20 +74,31 @@ fn impl_tokio_pg_mapper(
         }
     });
 
-    let table_columns = 
-        s.fields.iter()
-              .map(|field| {
-        let ident = field.ident.as_ref().expect("Expected structfield identifier");
-        format!(" {0}.{1} ", table_name, ident)
-    }).collect::<Vec<String>>().join(", ");
+    let table_columns = s
+        .fields
+        .iter()
+        .map(|field| {
+            let ident = field
+                .ident
+                .as_ref()
+                .expect("Expected structfield identifier");
+            format!(" {0}.{1} ", table_name, ident)
+        })
+        .collect::<Vec<String>>()
+        .join(", ");
 
-    let columns = 
-        s.fields.iter()
-              .map(|field| {
-        let ident = field.ident.as_ref().expect("Expected structfield identifier");
-        format!(" {} ", ident)
-    }).collect::<Vec<String>>().join(", ");
-
+    let columns = s
+        .fields
+        .iter()
+        .map(|field| {
+            let ident = field
+                .ident
+                .as_ref()
+                .expect("Expected structfield identifier");
+            format!(" {} ", ident)
+        })
+        .collect::<Vec<String>>()
+        .join(", ");
 
     let tokens = quote! {
         impl #impl_generics tokio_pg_mapper::FromTokioPostgresRow for #name #ty_generics #where_clause {
@@ -104,7 +121,7 @@ fn impl_tokio_pg_mapper(
             fn sql_table_fields() -> String {
                 #table_columns.to_string()
             }
-            
+
             fn sql_fields() -> String {
                 #columns.to_string()
             }
@@ -113,7 +130,6 @@ fn impl_tokio_pg_mapper(
 
     syn::parse_quote!(#tokens)
 }
-
 
 fn get_mapper_meta_items(attr: &syn::Attribute) -> Option<Vec<syn::NestedMeta>> {
     if attr.path.segments.len() == 1 && attr.path.segments[0].ident == "pg_mapper" {
@@ -157,12 +173,10 @@ fn parse_table_attr(ast: &DeriveInput) -> String {
                     if let Ok(s) = get_lit_str(m.path.get_ident(), &m.lit) {
                         table_name = Some(s.value());
                     }
-                },
+                }
                 Meta(_) => {
-                    panic!(format!(
-                        "unknown pg_mapper container attribute",
-                    ))
-                },
+                    panic!(format!("unknown pg_mapper container attribute",))
+                }
                 _ => {
                     panic!("unexpected literal in pg_mapper container attribute");
                 }
