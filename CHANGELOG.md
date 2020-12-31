@@ -1,3 +1,6 @@
+# 0.1.9
+- Updated dependency versions, removed unnecessary examples dir
+
 # 0.1.8
 - Fixed Display impl for Error causing stackoverflow
 
