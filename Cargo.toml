@@ -16,9 +16,5 @@ doctest = false
 tokio-postgres = "0.7"
 tokio-pg-mapper-derive = { version = "0.1.6", optional = true }
 
-[[example]]
-name = "src"
-required-features = ["derive"]
-
 [features]
 derive = ["tokio-pg-mapper-derive"]
