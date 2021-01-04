@@ -1,6 +1,6 @@
 [package]
 name = "tokio-pg-mapper-derive"
-version = "0.1.6"
+version = "0.2.0"
 description = "Proc-macro library used to map a tokio-postgres row to a Rust type (struct)"
 authors = ["Darin Gordon <dkcdkg@gmail.com>", "Zeyla Hellyer <zeyla@hellyer.dev>"]
 repository = "https://www.github.com/Dowwie/tokio-postgres-mapper"
