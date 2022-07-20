@@ -3,6 +3,8 @@ extern crate proc_macro;
 extern crate quote;
 extern crate syn;
 
+use syn::ext::IdentExt;
+
 use proc_macro::TokenStream;
 
 use syn::{
@@ -58,7 +60,7 @@ fn impl_tokio_pg_mapper(
         let ident = field.ident.as_ref().unwrap();
         let ty = &field.ty;
 
-        let row_expr = format!(r##"{}"##, ident);
+        let row_expr = format!(r##"{}"##, ident.unraw());
         quote! {
             #ident:row.try_get::<&str,#ty>(#row_expr)?
         }
@@ -68,7 +70,7 @@ fn impl_tokio_pg_mapper(
         let ident = field.ident.as_ref().unwrap();
         let ty = &field.ty;
 
-        let row_expr = format!(r##"{}"##, ident);
+        let row_expr = format!(r##"{}"##, ident.unraw());
         quote! {
             #ident:row.try_get::<&str,#ty>(&#row_expr)?
         }
@@ -82,7 +84,7 @@ fn impl_tokio_pg_mapper(
                 .ident
                 .as_ref()
                 .expect("Expected structfield identifier");
-            format!(" {0}.{1} ", table_name, ident)
+            format!(" {0}.{1} ", table_name, ident.unraw())
         })
         .collect::<Vec<String>>()
         .join(", ");
@@ -95,7 +97,7 @@ fn impl_tokio_pg_mapper(
                 .ident
                 .as_ref()
                 .expect("Expected structfield identifier");
-            format!(" {} ", ident)
+            format!(" {} ", ident.unraw())
         })
         .collect::<Vec<String>>()
         .join(", ");
